@@ -13,3 +13,8 @@ change db access class in assets/class/mysql.class.php<br />
 change config in assets/config.php<br />
 enjoy it.<br />
 
+Remember Default username e pass are:<br />
+user: admin<br />
+pass: admin<br />
+<br />
+password in db are stored with sha1($pass) encoding.<br />
