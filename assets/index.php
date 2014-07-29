@@ -60,6 +60,60 @@ include("config.php");
 
 </div>
 
+
+<div class="row-fluid">
+	  <div class="span4">	
+	  </div>	
+	  <div class="span4">	
+<div class="row-fluid">
+	  <div class="span12">	
+		<h1><span >Not yet registered?</span></h1>
+	  </div>	
+	</div>
+	<div class="row-fluid">
+	  <div class="span4">
+		  Username	
+	  </div>	
+	  <div class="span8">
+		  <input type="text" id="user" size=15>	
+	  </div>	
+	</div>	 
+
+	<div class="row-fluid">
+	  <div class="span4">
+		  email	
+	  </div>	
+	  <div class="span8">
+		  <input type="text" id="mail" size=15>	
+	  </div>	
+	</div>	 
+
+	<div class="row-fluid">
+	  <div class="span4">
+		  Password	
+	  </div>	
+	  <div class="span8">
+		  <input type="password" id="pass" size=15>	
+	  </div>	
+	</div>	 
+
+	<div class="row-fluid">
+	  <div class="span4">
+		  Re-type Password	
+	  </div>	
+	  <div class="span8">
+		  <input type="password" id="repass" size=15><br />		  <button onclick="create()">Signup</button>	
+	
+	  </div>	
+	</div>	 
+
+</div>
+	  </div>	
+	  <div class="span4">	
+	  </div>	
+
+</div>
+	
 </body>   
 </html>	
 
@@ -74,7 +128,7 @@ function login()
 var $param = "u=" + document.getElementById("a_user").value + "&p=" + document.getElementById("a_pass").value;
 //alert($param);
 var res = aPost(server + "callback/signin.php",$param);
-window.location.href = "app/kc/browse.php";
+window.location.href = "kc/browse.php";
 }
 
 function aPost(url, parameters)
@@ -90,5 +144,55 @@ function aPost(url, parameters)
 					return AJAX.responseText;                                         
 		} else { return false; }     
 }  
+
+
+	
+	
+function create()
+{
+if (checkEmail())
+{
+  if ((document.getElementById("user").value != '')  && (document.getElementById("pass").value == document.getElementById("repass").value))
+  {
+
+
+  var $param = "u=" + document.getElementById("user").value + "&p=" +     document.getElementById("pass").value + "&m=" + document.getElementById("mail").value;
+var res = aPost("callback/create.php",$param);
+
+if (res =='')
+ {
+	 window.location.href = "<?php echo $_SESSION['app_address'];?>"; 
+ }
+else
+{
+alert(res);
+}
+
+}
+else
+{
+ 	   alert("le password non coincidono o username non permesso");
+
+}
+
+
+}
+else
+ {
+ alert('Email non valida');
+ }
+}
+
+function checkEmail() {
+var email = document.getElementById('mail');
+var filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+if (!filter.test(email.value)) {
+return false;
+}
+else
+ return true;
+}
+
+
  
 </script>
