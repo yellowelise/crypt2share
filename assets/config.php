@@ -6,7 +6,7 @@
  */
 $_SESSION['path'] =  (__DIR__) .DIRECTORY_SEPARATOR. "homes" .DIRECTORY_SEPARATOR;
 $_SESSION['app_path'] =  (__DIR__).DIRECTORY_SEPARATOR;
-$_SESSION['kc_path'] = "/assets/homes/";
+$_SESSION['kc_path'] = "/c2s/assets/homes/";
 $_SESSION['kc_denied_ext'] = "exe|com|msi|bat|php|phps|phtml|php3|php4|cgi|pl|py|js|css|prop";
 $_SESSION['not_logged'] = "location: ../index.php";
 $_SESSION['logged'] = "location: assets/kc/browse.php?lang=it";
