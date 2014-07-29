@@ -74,7 +74,7 @@ function login()
 var $param = "u=" + document.getElementById("a_user").value + "&p=" + document.getElementById("a_pass").value;
 //alert($param);
 var res = aPost(server + "callback/signin.php",$param);
-window.location.href = "../app/kc/browse.php";
+window.location.href = "app/kc/browse.php";
 }
 
 function aPost(url, parameters)
