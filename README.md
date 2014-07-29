@@ -3,6 +3,10 @@ crypt2share
 
 Crypted Cloud Storage
 
+Demo
+====
+
+http://www.crypt2share.com<br />
 
 Installation
 ============
