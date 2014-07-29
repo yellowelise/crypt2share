@@ -1,0 +1,499 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+ <head>
+  <title>Crypt2Share</title>
+    <!-- Bootstrap -->
+  <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+
+  <!-- Generic page styles -->
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/mob_style.css">
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/jquery.blockUI.js"></script>
+
+ </head>
+
+<body onload="directory()">
+	 <div id="toolbar" class="navbar navbar-inverse navbar-fixed-top">
+	   <div class="navbar-inner">
+
+		  <div class="row-fluid">	 
+          <div class="span2"><button id="btn_head_file" onclick="file_non_criptati()" class="btn btn-info active" style="width:100%;">File non criptati</button></div>
+          <div class="span2"><button id="btn_head_criptati" onclick="file_criptati()" class="btn btn-info" style="width:100%;">File Criptati</button></div>
+          <div class="span2"><button id="btn_head_upload" onclick="upload()" class="btn btn-info" style="width:100%;">Upload file</button></div>
+          <div class="span2"><button id="btn_head_uploadv" class="btn btn-info" style="width:100%;">foo</button></div>
+          <div class="span2"><button id="btn_head_amici" onclick="amici()" class="btn btn-success" style="width:100%;">Amici</button></div>
+          <div class="span2"><button id="btn_head_logout" class="btn btn-danger" style="width:100%;">Logout</button></div>
+	     </div>
+	   </div>
+	 </div>
+	 <div id="fileactionbar" class="navbar navbar-inverse navbar-fixed-bottom" style="visibility:hidden">
+	   <div class="navbar-inner">
+		  <div class="row-fluid">	 
+          <div class="span2"><button id="btn_cripta" onclick="moveto_secure()" class="btn btn-success disabled" style="width:100%;">Cripta</button></div>
+          <div class="span2"><button id="btn_elimina" onclick="delete_file()" class="btn btn-danger disabled" style="width:100%;">Elimina file</button></div>
+          <div class="span2"><button id="btn_copia" class="btn btn-info disabled" style="width:100%;">Copia in amico</button></div>
+          <div class="span2"><button id="btn_preview"  onclick="preview()" class="btn btn-info disabled" style="width:100%;">Preview</button></div>
+          <div class="span2"><button id="btn_foo1" class="btn btn-info disabled" style="width:100%;">foo</button></div>
+          <div class="span2"><button id="btn_foo2" class="btn btn-info disabled" style="width:100%;">foo</button></div>
+	     </div>
+	   </div>
+	 </div>
+	 
+	 <div id="cryactionbar" class="navbar navbar-inverse navbar-fixed-bottom" style="visibility:hidden">
+	   <div class="navbar-inner">
+		  <div class="row-fluid">	 
+          <div class="span2"><button id="btn_cry_decripta" onclick="moveto_unsecure()" class="btn btn-success disabled" style="width:100%;">Decripta</button></div>
+          <div class="span2"><button id="btn_cry_elimina" onclick="delete_secure()" class="btn btn-danger disabled" style="width:100%;">Elimina file</button></div>
+          <div class="span2"><button id="btn_cry_share" class="btn btn-info disabled" style="width:100%;">Condividi</button></div>
+          <div class="span2"><button id="btn_cry_amici" class="btn btn-info disabled" style="width:100%;">Amici</button></div>
+          <div class="span2"><button id="btn_cry_foo1" class="btn btn-info disabled" style="width:100%;">foo</button></div>
+          <div class="span2"><button id="btn_cry_foo2" class="btn btn-info disabled" style="width:100%;">foo</button></div>
+	     </div>
+	   </div>
+	 </div>
+
+	 <div id="current_dir" style="visibility:hidden"></div>
+ <!-- <div class="row-fluid">
+   <div class="span12">
+    <ul class="nav nav-tabs">
+     <li class='active' ><a href="mobile_dir.html">Directory</a></li>
+     <li><a href="mobile_file.html">Lista File</a></li>
+     <li><a href="mobile_sel.html">File Selezionato</a></li>
+    </ul>
+    </div>
+   </div>	 
+-->
+
+ 
+  <div  id="search_res"></div>
+  <div style="width:10px;height:50px;">&nbsp;<br /><br /><br /></div>
+
+</body>   
+</html>	
+
+
+
+
+<script>
+	
+	 
+var selected_file='';
+var selected_ut='';
+var selected_ut_file ='';
+var server = 'https://www.crypt2share.com/app/';
+var lastselfile = '';
+var lastselcryp = '';
+setInterval(get_token,60000);
+
+
+
+var designWidth = 1480; // zoom to fit this ratio
+var designHeight = 1762; // not 800 b/c top bar is 38 pixels tall
+var scaleChange = 2; // % change in scale from above #s
+
+function close()
+{
+	//$.unblockUI();
+	 window.location.reload();
+}    
+function close_r()
+{
+	 window.location.reload();
+}    
+
+function block(msg)
+{
+	$.blockUI({ message: "<div id='blocking'><a style='position:absolute;height:20px;left:4px;top:4px;' id='chiudi' href='javascript:close()'  onclick='return true'><img src='kc/themes/oxygen/img/icons/close_j.png' style='vertical-align:middle'></a><br />"+msg+"</div>"
+	, css: { 
+	height: ($(window).height() - 150) +'px',
+	width: ($(window).width() -50) + 'px',
+	top: "75px", //(($(window).height() - $('#sharing').height()) / 2) + "px",
+	left: "25px" //(($(window).width()/2)/2) + "px"// (($(window).width() - $('#sharing').width()) / 2) + "px"
+		
+		 }  });
+}
+
+
+function upload()
+{
+	var resu = aPost(server + "API/get_curr_dir.php");
+	//alert(resu);
+	var monW = $(window).width();
+	var monH = $(window).height();
+	//alert("<iframe style='width:"+(monW - 80)+"px;height:"+(monH-200)+"px;top:60px;' src='upload.html'></iframe>");
+	block("<iframe frameborder=0 style='width:"+(monW - 80)+"px;height:"+(monH-200)+"px;top:90px;' src='jupload.php?p="+resu+"'></iframe>");
+}
+
+
+function zoomScreen() {
+	var docWidth = window.outerWidth;
+	var docHeight = window.outerHeight;
+
+	if (docWidth != designWidth) {
+		var scaleX = docWidth / designWidth;
+		var scaleY = docHeight / designHeight;
+		if (scaleX < scaleY) {
+			$('body').css('zoom', scaleX);
+			scaleChange = scaleX;
+		} else {
+			$('body').css('zoom', scaleY);
+			scaleChange = scaleY;
+		}
+	}
+}
+
+
+
+
+function preview()
+{
+	var monW = $(window).width();
+	var monH = $(window).height();
+	var res = aPost("usr_img.php", "fn="+escape(selected_file)+"&du=1");
+	var parsedJSON = eval('('+res+')');
+    if (monW>monH)
+	  var s = monH - 200;
+    if (monH>monW)
+	  var s = monW - 100;
+	
+	var ratio = parsedJSON.W /parsedJSON.H;
+	
+	if (ratio > 1)
+    	s = s * ratio;
+	
+	//alert(s);	 
+	block("<img src='usr_img.php?fn="+escape(selected_file)+"&s="+s+"' /><br />Original dim:" + parsedJSON.W +"X"+parsedJSON.H);
+}
+function amici()
+{
+	var res = aPost(server + "/API/friends_list.php");
+	//alert(res);
+	var parsedJSON = eval('('+res+')');
+    var amici_a = '';
+    for (i=0;i<parsedJSON.friends.length;i++)
+     {
+      amici_a +=  parsedJSON.friends[i].username+": "+parsedJSON.friends[i].email + "\n";
+     }
+    alert(amici_a);	
+}
+
+
+function moveto_secure()
+{
+	var pass = prompt("Inserisci password criptaggio","");
+	if (pass)
+	{ 
+	//alert(selected_file);
+	var $param = "f=" + escape(selected_file) + "&p=" + pass;
+	var res = aPost(server + "API/moveto_secure.php",$param);
+	alert(res);
+	//directory();
+}
+}
+function delete_secure()
+{
+    var risposta = confirm("Eliminare: " + selected_ut_file + "?");
+    if (risposta)
+     {
+ 	  var $param = "id=" + selected_ut;
+	  var res = aPost(server + "API/delete_secure.php",$param);
+      file_criptati();
+     }
+}
+
+
+function moveto_unsecure()
+{
+	//	alert(selected_ut);
+	var pass = prompt("Inserisci password decriptaggio","");
+	if (pass)
+	{ 
+
+	var $param = "id=" + selected_ut + "&p=" + pass;
+	var res = aPost(server + "API/moveto_unsecure.php",$param);
+	if (res)
+	 {
+		 alert(res);
+		 moveto_unsecure();
+	 }
+	else
+	 file_criptati(); 
+	
+}
+}
+
+function delete_file()
+{
+	var risposta = confirm("Vuoi eliminare il file:" + selected_file + "?");
+	if (risposta)
+	 {
+    	var resu = aPost(server + "API/delete_file.php","f=" + escape(selected_file));
+		directory();  
+	 }
+}
+	
+function get_token()
+{
+	var resu = aPost(server + "API/get_token.php");
+	if (resu == 'login')
+	 window.location.href="mobile_login.html";
+}
+
+	
+function set_curr_dir(d)
+{
+	var resu = aPost(server + "API/set_curr_dir.php","d=" +d);
+}
+
+	
+function goto_dir(d)
+{
+	set_curr_dir(d);
+	window.location.href= "mobile.html?d=" + d;
+}
+
+function get_curr_dir()
+{
+	var resu = aPost(server + "API/get_curr_dir.php");
+	
+			 var a_resu = resu.split('/');
+		 //alert(dir_d.length);
+		     path = "";
+		     butt = "";
+		     for (i=0;i<(a_resu.length-1);i++)
+		      {
+				  path += a_resu[i] + "/";
+				  butt += "<button onclick=goto_dir('"+path+"')>" + a_resu[i] + "</button>&nbsp;/&nbsp;";
+			  }
+		 //dir_d = a_dir_d[a_dir_d.length-2];
+		 //dir_d = dir_d.pop();
+
+    document.getElementById("current_dir").innerHTML = butt;
+    return resu;
+}
+
+function file_non_criptati()
+{
+	document.getElementById("btn_head_file").className = "btn btn-info active";
+	document.getElementById("btn_head_criptati").className = "btn btn-info";
+	document.getElementById("btn_head_upload").className = "btn btn-info";
+	document.getElementById("btn_head_uploadv").className = "btn btn-info";
+	document.getElementById("btn_head_amici").className = "btn btn-success";
+	document.getElementById("btn_head_logout").className = "btn btn-danger";
+	directory();
+}
+
+
+function file_criptati()
+{
+	
+	document.getElementById("fileactionbar").style.visibility = "hidden";
+	document.getElementById("cryactionbar").style.visibility = "visible";
+	document.getElementById("current_dir").style.visibility = "hidden";
+
+	
+	document.getElementById("btn_head_file").className = "btn btn-info";
+	document.getElementById("btn_head_criptati").className = "btn btn-info active";
+	document.getElementById("btn_head_upload").className = "btn btn-info";
+	document.getElementById("btn_head_uploadv").className = "btn btn-info";
+	document.getElementById("btn_head_amici").className = "btn btn-success";
+	document.getElementById("btn_head_logout").className = "btn btn-danger";
+	
+	var res = aPost(server + "API/cryp_list.php");
+	//document.getElementById("search_res").innerHTML = res;
+	//alert(res);
+ //  if ((res[0] == '{') && (res[1] == '"'))
+    {
+	document.getElementById("search_res").innerHTML = "";
+	var parsedJSON = eval('('+res+')');
+    //alert(parsedJSON.files.length);
+    for (i=0;i<parsedJSON.files.length;i++)
+     {
+		  // onmouseover=ut_selected('"+parsedJSON.files[i].uploadticket+"','"+escape(parsedJSON.files[i].filename)+"') onmouseout=ut_unselect() 
+      file =  "<div class='crfile' id='cryp_"+i+"' onclick=crypselect('"+i+"','"+parsedJSON.files[i].uploadticket+"','"+escape(parsedJSON.files[i].filename)+"') style='float: left;overflow:auto;' ><div class='crthumb' style='background-image: url(images/aes.png)'><div style='position:relative;height:100px;'></div></div><div class='crname' style='display: block;'>"+parsedJSON.files[i].filename+"</div><div class='crtime' style='display: block;'>" + parsedJSON.files[i].last_modified + "</div><div class='crsize' style='display: block;'>"+parsedJSON.files[i].human_size+"</div></div>";
+      document.getElementById("search_res").innerHTML += file;//"<li  style='list-style: none outside none;float: left;margin: 1em 1em;'><div style='max-width:180px;min-width:140px;min-height:140px;background-color: rgba(184, 255, 184, 0.8);background-image: url(usr_img.php?fn=files/"+encodeURI(parsedJSON[i]['name'])+"&s=140);    border-color: #BBFFBB;    position: relative;    top: 5px;    '><h6>" + parsedJSON[i]['name'] + "</h6><font style='font-size:11.9px'><br />"+ parsedJSON[i]['size'] + "<br/>"+parsedJSON[i]['date']+"</font></div></li>";
+     }
+
+	//document.getElementById("search_res").innerHTML += "</ul>";
+	
+    }
+}	
+
+function selected(f)
+{
+	//alert(f);
+	selected_file = unescape(f);
+	document.getElementById("btn_cripta").className = "btn btn-success";
+	document.getElementById("btn_elimina").className = "btn btn-danger";
+	document.getElementById("btn_copia").className = "btn btn-info";
+	document.getElementById("btn_preview").className = "btn btn-info";
+	document.getElementById("btn_foo1").className = "btn btn-info";
+	document.getElementById("btn_foo2").className = "btn btn-info";
+}
+function unselect()
+{
+	//selected_file = ''; 
+	document.getElementById("btn_cripta").className = "btn btn-success disabled";
+	document.getElementById("btn_elimina").className = "btn btn-danger disabled";
+	document.getElementById("btn_copia").className = "btn btn-info disabled";
+	document.getElementById("btn_preview").className = "btn btn-info disabled";
+	document.getElementById("btn_foo1").className = "btn btn-info disabled";
+	document.getElementById("btn_foo2").className = "btn btn-info disabled";
+	
+}
+
+function ut_selected(ut,file)
+{
+	//alert(ut);
+	selected_ut = ut;
+	selected_ut_file = unescape(file);
+	document.getElementById("btn_cry_decripta").className = "btn btn-success";
+	document.getElementById("btn_cry_elimina").className = "btn btn-danger";
+	document.getElementById("btn_cry_share").className = "btn btn-info";
+	document.getElementById("btn_cry_amici").className = "btn btn-info";
+	document.getElementById("btn_cry_foo1").className = "btn btn-info";
+	document.getElementById("btn_cry_foo2").className = "btn btn-info";
+}
+
+function ut_unselect()
+{
+//alert('unsel');
+	//selected_ut = ''; 
+	document.getElementById("btn_cry_decripta").className = "btn btn-success disabled";
+	document.getElementById("btn_cry_elimina").className = "btn btn-danger disabled";
+	document.getElementById("btn_cry_share").className = "btn btn-info disabled";
+	document.getElementById("btn_cry_amici").className = "btn btn-info disabled";
+	document.getElementById("btn_cry_foo1").className = "btn btn-info disabled";
+	document.getElementById("btn_cry_foo2").className = "btn btn-info disabled";
+	
+}
+
+
+function fileselect(id,f)
+{
+// alert(id);
+ if (lastselfile != '') 
+  document.getElementById(lastselfile).className = "crfile";
+  
+ selected(f);
+ 
+ document.getElementById("file_"+id).className = "crfile crfilesel";
+ lastselfile = "file_"+id;
+}
+
+function crypselect(id,ut,f)
+{
+// alert(id);
+ if (lastselcryp != '') 
+  document.getElementById(lastselcryp).className = "crfile";
+  
+ ut_selected(ut,f);
+ 
+ document.getElementById("cryp_"+id).className = "crfile crfilesel";
+ lastselcryp = "cryp_"+id;
+}
+
+
+
+
+function directory()
+{
+
+get_token();
+	document.getElementById("fileactionbar").style.visibility = "visible";
+	document.getElementById("cryactionbar").style.visibility = "hidden";
+	document.getElementById("current_dir").style.visibility = "visible";
+
+	var prmstr = window.location.search.substr(1);
+    var prmarr = prmstr.split ("&");
+    var params = {};
+
+    for ( var i = 0; i < prmarr.length; i++) {
+      var tmparr = prmarr[i].split("=");
+      params[tmparr[0]] = tmparr[1];
+    }
+	
+	if (params.d)
+     {
+	  var 	 curr_dir = params.d;
+	  set_curr_dir(curr_dir);
+	  get_curr_dir();
+	 }
+    else
+     { 	
+	  var curr_dir = get_curr_dir();
+	 }
+	
+	
+	var $param = "d="+ curr_dir + "&q=1000";
+	//alert($param);
+	var res = aPost(server + "API/dir_list.php",$param);
+    //alert(res);
+
+	//document.getElementById("search_res").innerHTML = "<ul>";
+	document.getElementById("search_res").innerHTML = "";
+	var parsedJSON = eval('('+res+')');
+    //alert(parsedJSON.directories.length);
+    for (i=0;i<parsedJSON.directories.length;i++)
+     {
+		 dir_d = parsedJSON.directories[i].name;
+		 var a_dir_d = dir_d.split('/');
+		 //alert(dir_d.length);
+		 dir_d = a_dir_d[a_dir_d.length-2];
+		 //dir_d = dir_d.pop();
+		 
+		// alert(dir_d);
+      dir =  "<div class='crfile' style='float: left;overflow:auto;cursor:pointer;' onclick=goto_dir('"+ curr_dir + dir_d+"/')><div class='crthumb' style='background-image: url(images/folder.png)' ><div style='position:relative;height:100px;'></div></div><div class='crname' style='display: block;'>"+dir_d+"</div></div>";
+		 
+		 
+		 
+      document.getElementById("search_res").innerHTML += dir;//"<li  style='list-style: none outside none;float: left;margin: 1em 1em;'><div style='max-width:180px;min-width:140px;min-height:140px;background-color: rgba(184, 255, 184, 0.8);background-image: url(usr_img.php?fn=files/"+encodeURI(parsedJSON[i]['name'])+"&s=140);    border-color: #BBFFBB;    position: relative;    top: 5px;    '><h6>" + parsedJSON[i]['name'] + "</h6><font style='font-size:11.9px'><br />"+ parsedJSON[i]['size'] + "<br/>"+parsedJSON[i]['date']+"</font></div></li>";
+}
+
+	document.getElementById("search_res").innerHTML += "";
+
+
+	var res = aPost(server + "API/file_list.php",$param);
+	//document.getElementById("search_res").innerHTML = res;
+	//alert(res);
+   if ((res[0] == '{') && (res[1] == '"'))
+    {
+	//document.getElementById("search_res").innerHTML += "<ul>";
+	var parsedJSON = eval('('+res+')');
+    //alert(parsedJSON.files);
+    for (i=0;i<parsedJSON.files.length;i++)
+     {
+		 //onmouseover=selected('"+escape(curr_dir+parsedJSON.files[i].filename)+"') onmouseout=unselect() 
+      file =  "<div class='crfile' id='file_"+i+"' onclick=fileselect('"+i+"','"+escape(curr_dir+parsedJSON.files[i].filename)+"') style='float: left;overflow:auto;' ><div class='crthumb' style='background-image: url("+server+"usr_img.php?fn="+curr_dir+escape(parsedJSON.files[i].filename)+"&s=90)'><div style='position:relative;height:100px;'></div></div><div class='crname' style='display: block;'>"+parsedJSON.files[i].filename+"</div><div class='crtime' style='display: block;'>" + parsedJSON.files[i].last_modified + "</div><div class='crsize' style='display: block;'>"+parsedJSON.files[i].human_size+"</div></div>";
+		 
+		 
+		 
+      document.getElementById("search_res").innerHTML += file;//"<li  style='list-style: none outside none;float: left;margin: 1em 1em;'><div style='max-width:180px;min-width:140px;min-height:140px;background-color: rgba(184, 255, 184, 0.8);background-image: url(usr_img.php?fn=files/"+encodeURI(parsedJSON[i]['name'])+"&s=140);    border-color: #BBFFBB;    position: relative;    top: 5px;    '><h6>" + parsedJSON[i]['name'] + "</h6><font style='font-size:11.9px'><br />"+ parsedJSON[i]['size'] + "<br/>"+parsedJSON[i]['date']+"</font></div></li>";
+}
+
+	}
+	}
+
+
+
+ $(document).ajaxStart($.blockUI({ message: '<h1>Just a moment...</h1>' })); 
+
+
+function aPost(url, parameters)
+{
+//	            $.blockUI({ message: '<h1>Just a moment...</h1>' }); 
+	
+		if (window.XMLHttpRequest) { AJAX=new XMLHttpRequest(); } 
+		else {  AJAX=new ActiveXObject("Microsoft.XMLHTTP");  }
+		
+		if (AJAX) {
+					AJAX.open("POST", url, false);
+					AJAX.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+					AJAX.send(parameters);
+                $.unblockUI(); 
+					return AJAX.responseText;                                         
+		} else {  return false; }     
+}  
+ 
+</script>

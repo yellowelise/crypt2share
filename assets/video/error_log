@@ -1,0 +1,2 @@
+[26-Aug-2013 11:45:31 Europe/Berlin] PHP Warning:  PHP Startup: Unable to load dynamic library '/usr/local/lib/php/extensions/no-debug-non-zts-20100525/suhosin.so' - /usr/local/lib/php/extensions/no-debug-non-zts-20100525/suhosin.so: undefined symbol: output_globals in Unknown on line 0
+[30-Aug-2013 20:17:30 Europe/Berlin] PHP Warning:  PHP Startup: Unable to load dynamic library '/usr/local/lib/php/extensions/no-debug-non-zts-20100525/suhosin.so' - /usr/local/lib/php/extensions/no-debug-non-zts-20100525/suhosin.so: undefined symbol: output_globals in Unknown on line 0
