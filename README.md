@@ -3,6 +3,14 @@ crypt2share
 
 Crypted Cloud Storage
 
+Technology
+==========
+PHP, MySql, JQuery, Javascript.
+Based on KCFinder
+
+
+
+
 Demo
 ====
 
